@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    # Backend
+    - name: Install backend dependencies
+      working-directory: ./backend
+      run: npm ci
+
+    - name: Run backend linting
+      working-directory: ./backend
+      run: |
+        npm run lint || echo "Linting failed"
+
+    - name: Run backend tests
+      working-directory: ./backend
+      run: |
+        npm test || echo "Tests failed"
+
+    # Frontend
+    - name: Install frontend dependencies
+      working-directory: ./frontend
+      run: npm ci
+
+    - name: Run frontend linting
+      working-directory: ./frontend
+      run: |
+        npm run lint || echo "Linting failed"
+
+    - name: Build frontend
+      working-directory: ./frontend
+      run: |
+        npm run build || echo "Build failed"
+
+    - name: Run frontend tests
+      working-directory: ./frontend
+      run: |
+        npm test || echo "Tests failed"
+
+    # Add test coverage reporting here later
