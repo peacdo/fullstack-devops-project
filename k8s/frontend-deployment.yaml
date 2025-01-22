@@ -13,6 +13,8 @@ spec:
       labels:
         app: lib-frontend
     spec:
+      imagePullSecrets:
+      - name: ghcr-secret
       containers:
       - name: frontend
         image: ghcr.io/peacdo/lib-frontend:latest

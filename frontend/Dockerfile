@@ -1,10 +1,20 @@
 FROM node:20-alpine as builder
 
 WORKDIR /app
+
+# Copy package files
 COPY package*.json ./
+
+# Install all dependencies including devDependencies
 RUN npm ci
 
+# Install TypeScript globally
+RUN npm install -g typescript
+
+# Copy source code
 COPY . .
+
+# Build
 RUN npm run build
 
 FROM nginx:alpine

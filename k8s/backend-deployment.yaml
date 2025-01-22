@@ -13,6 +13,8 @@ spec:
       labels:
         app: lib-backend
     spec:
+      imagePullSecrets:
+      - name: ghcr-secret
       containers:
       - name: backend
         image: ghcr.io/peacdo/lib-backend:latest
