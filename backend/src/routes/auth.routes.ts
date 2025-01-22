@@ -8,15 +8,17 @@ import type { Response, RequestHandler } from 'express';
 
 const router = Router();
 
-interface ProfileResponse {
+// Define base API response interface
+interface ApiResponse {
+  status: 'success' | 'error';
+  message?: string;
+}
+
+interface ProfileResponse extends ApiResponse {
   status: 'success';
   data: {
     user: AuthRequest['user'];
   };
-}
-
-interface AuthResponse extends ApiResponse {
-  // ...
 }
 
 const profileHandler: RequestHandler = (req, res: Response<ProfileResponse>) => {
