@@ -9,11 +9,11 @@ COPY prisma ./prisma/
 
 # Install dependencies with retry
 RUN npm config set registry http://registry.npmjs.org/ && \
-    for i in 1 2 3; do \
-        npm ci && \
-        npm install -g typescript && \
-        break || sleep 5; \
-    done
+    npm config set fetch-retries 5 && \
+    npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retry-maxtimeout 120000 && \
+    npm ci && \
+    npm install -g typescript
 
 # Copy source code
 COPY . .
@@ -33,10 +33,10 @@ COPY prisma ./prisma/
 
 # Install production dependencies with retry
 RUN npm config set registry http://registry.npmjs.org/ && \
-    for i in 1 2 3; do \
-        npm ci --production && \
-        break || sleep 5; \
-    done
+    npm config set fetch-retries 5 && \
+    npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retry-maxtimeout 120000 && \
+    npm ci --production
 
 # Copy built files and Prisma client
 COPY --from=builder /app/dist ./dist
