@@ -2,14 +2,20 @@ FROM node:20-alpine as builder
 
 WORKDIR /app
 
+# Add DNS settings to resolve network issues
+RUN echo "nameserver 8.8.8.8" > /etc/resolv.conf && \
+    echo "nameserver 8.8.4.4" >> /etc/resolv.conf
+
 # Copy package files
 COPY package*.json ./
 
-# Install all dependencies including devDependencies
-RUN npm ci
-
-# Install TypeScript globally
-RUN npm install -g typescript
+# Install dependencies with retry
+RUN npm config set registry http://registry.npmjs.org/ && \
+    for i in 1 2 3; do \
+        npm ci && \
+        npm install -g typescript && \
+        break || sleep 5; \
+    done
 
 # Copy source code
 COPY . .
