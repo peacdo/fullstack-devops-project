@@ -7,23 +7,17 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Install dependencies with retry for network issues
-RUN --mount=type=cache,target=/root/.npm \
-    npm config set registry http://registry.npmjs.org/ && \
-    npm ci
+# Install all dependencies including devDependencies
+RUN npm ci
+
+# Install TypeScript globally
+RUN npm install -g typescript
 
 # Copy source code
 COPY . .
 
-# Generate Prisma client with retry
-RUN --mount=type=cache,target=/root/.npm \
-    for i in 1 2 3; do \
-        npm install prisma && \
-        npx prisma generate && \
-        break || sleep 5; \
-    done
-
-# Build TypeScript code
+# Generate Prisma client and build
+RUN npx prisma generate
 RUN npm run build
 
 # Production stage
@@ -36,8 +30,7 @@ COPY package*.json ./
 COPY prisma ./prisma/
 
 # Install production dependencies
-RUN --mount=type=cache,target=/root/.npm \
-    npm ci --production
+RUN npm ci --production
 
 # Copy built files and Prisma client
 COPY --from=builder /app/dist ./dist
