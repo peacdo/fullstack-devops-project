@@ -1,5 +1,12 @@
 name: CI/CD Pipeline
 
+# Add these permissions at the workflow level
+permissions:
+  contents: read
+  packages: write
+  id-token: write    # Needed for kubectl authentication
+  actions: write     # Needed for workflow
+
 on:
   push:
     branches: [ main ]
@@ -13,6 +20,10 @@ env:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    # Job level permissions are already added
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v3
 

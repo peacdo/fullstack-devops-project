@@ -3,7 +3,7 @@ import { validate } from '../middleware/validate';
 import { registerSchema, loginSchema } from '../utils/validation';
 import { register, login } from '../controllers/auth.controller';
 import { authenticate } from '../middleware/auth';
-import { AuthRequest, ApiResponse } from '../types';
+import { AuthRequest } from '../types';
 import type { Response, RequestHandler } from 'express';
 
 const router = Router();
@@ -13,6 +13,10 @@ interface ProfileResponse {
   data: {
     user: AuthRequest['user'];
   };
+}
+
+interface AuthResponse extends ApiResponse {
+  // ...
 }
 
 const profileHandler: RequestHandler = (req, res: Response<ProfileResponse>) => {
