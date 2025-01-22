@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-library_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - library-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-library_db}
+      JWT_SECRET: "${JWT_SECRET:-e50f57003a7818d7557ef729ba52ec667bb11dd0dcc5f87bec4a50a49692ec0db44b2f625b2698d0483e356555e33392d754b59125198c5b9d0c1835211edfbc7e299f3ab3aa47265ba063df37c4e1aad6412a090cc2fa755bb4674ee8e95a8c9929a766f390d24e383646655b673591e7d1a1bdf362e2b3d999fc2d1bb2fd429445de1e012707d943498deb916d56fcfc929d4b4252e41559fcc2be21f0318d35cc5714ae850bc38dc86cc205f2b2ada0c8bdf5ed0a138810ad080e5cf40fdad652c7d860638328282f5337f6c09bc91b5bdd4ff9cd36aa7c448284dfddc8b42a9ef0ca58c0062d64923b8cf89f5045831e291864589b6de52d9fcfebe6df23}"
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - library-network
+
+  test-runner:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.test
+    environment:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/library_test
+      JWT_SECRET: "${JWT_SECRET:-e50f57003a7818d7557ef729ba52ec667bb11dd0dcc5f87bec4a50a49692ec0db44b2f625b2698d0483e356555e33392d754b59125198c5b9d0c1835211edfbc7e299f3ab3aa47265ba063df37c4e1aad6412a090cc2fa755bb4674ee8e95a8c9929a766f390d24e383646655b673591e7d1a1bdf362e2b3d999fc2d1bb2fd429445de1e012707d943498deb916d56fcfc929d4b4252e41559fcc2be21f0318d35cc5714ae850bc38dc86cc205f2b2ada0c8bdf5ed0a138810ad080e5cf40fdad652c7d860638328282f5337f6c09bc91b5bdd4ff9cd36aa7c448284dfddc8b42a9ef0ca58c0062d64923b8cf89f5045831e291864589b6de52d9fcfebe6df23}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - library-network
+
+networks:
+  library-network:
+    driver: bridge
+
+volumes:
+  postgres_data: 

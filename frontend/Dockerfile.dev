@@ -1,0 +1,19 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install dependencies
+COPY package*.json ./
+RUN npm ci
+
+# Copy source code
+COPY . .
+
+# Expose port
+EXPOSE 5173
+
+# Start development server with host flag
+ENV VITE_API_URL=http://localhost:3000/api
+ENV NODE_ENV=development
+
+CMD ["npm", "run", "dev"] 
