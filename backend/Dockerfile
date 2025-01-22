@@ -7,9 +7,8 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Install dependencies with retry and custom DNS
+# Install dependencies with retry
 RUN npm config set registry http://registry.npmjs.org/ && \
-    npm config set dns_nameservers 8.8.8.8 8.8.4.4 && \
     for i in 1 2 3; do \
         npm ci && \
         npm install -g typescript && \
@@ -34,7 +33,6 @@ COPY prisma ./prisma/
 
 # Install production dependencies with retry
 RUN npm config set registry http://registry.npmjs.org/ && \
-    npm config set dns_nameservers 8.8.8.8 8.8.4.4 && \
     for i in 1 2 3; do \
         npm ci --production && \
         break || sleep 5; \
