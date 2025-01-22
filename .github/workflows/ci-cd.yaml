@@ -43,6 +43,10 @@ jobs:
           context: ./backend
           push: true
           tags: ${{ env.DOCKER_REGISTRY }}/lib-backend:latest
+          network: host
+          build-args: |
+            DOCKER_BUILDKIT=1
+            BUILDKIT_STEP_LOG_MAX_SIZE=10485760
 
       - name: Build and push Frontend
         uses: docker/build-push-action@v4
@@ -50,6 +54,10 @@ jobs:
           context: ./frontend
           push: true
           tags: ${{ env.DOCKER_REGISTRY }}/lib-frontend:latest
+          network: host
+          build-args: |
+            DOCKER_BUILDKIT=1
+            BUILDKIT_STEP_LOG_MAX_SIZE=10485760
 
       - name: Set up kubectl
         uses: azure/setup-kubectl@v3
