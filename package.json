@@ -1,0 +1,39 @@
+{
+  "name": "fullstack-devops-project",
+  "version": "1.0.0",
+  "description": "A full-stack library management system with DevOps practices",
+  "scripts": {
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm run dev\"",
+    "lint": "concurrently \"cd backend && npm run lint\" \"cd frontend && npm run lint\"",
+    "test": "concurrently \"cd backend && npm test\" \"cd frontend && npm test\"",
+    "build": "concurrently \"cd backend && npm run build\" \"cd frontend && npm run build\"",
+    "docker:dev": "docker-compose -f docker-compose.dev.yml up --build",
+    "docker:dev:init": "docker-compose -f docker-compose.dev.yml up --build",
+    "docker:prod": "docker-compose up --build -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:test": "docker-compose run --rm test-runner",
+    "docker:clean": "docker-compose down -v"
+  },
+  "keywords": [
+    "fullstack",
+    "devops",
+    "library",
+    "management"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/peacdo/fullstack-devops-project.git"
+  },
+  "bugs": {
+    "url": "https://github.com/peacdo/fullstack-devops-project/issues"
+  },
+  "homepage": "https://github.com/peacdo/fullstack-devops-project#readme"
+}

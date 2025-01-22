@@ -1,0 +1,45 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install PostgreSQL client
+RUN apk add --no-cache postgresql-client
+
+# Copy package files
+COPY package*.json ./
+COPY prisma ./prisma/
+
+# Install dependencies including development ones
+RUN npm install
+
+# Generate Prisma client
+RUN npx prisma generate
+
+# Copy source code and test files
+COPY . .
+
+# Create test script
+RUN echo '#!/bin/sh\n\
+# Wait for PostgreSQL to be ready\n\
+until PGPASSWORD=postgres psql -h postgres -U postgres -c "\q"; do\n\
+  echo "Postgres is unavailable - sleeping"\n\
+  sleep 1\n\
+done\n\
+\n\
+# Create test database if it does not exist\n\
+PGPASSWORD=postgres psql -h postgres -U postgres -tc "SELECT 1 FROM pg_database WHERE datname = '\''library_test'\''" | grep -q 1 || \
+PGPASSWORD=postgres psql -h postgres -U postgres -c "CREATE DATABASE library_test"\n\
+\n\
+# Run migrations and tests\n\
+NODE_ENV=test npx prisma migrate deploy\n\
+NODE_ENV=test jest --forceExit --detectOpenHandles\n\
+' > /app/run-tests.sh
+
+# Make test script executable
+RUN chmod +x /app/run-tests.sh
+
+# Verify TypeScript compilation
+RUN npm run build
+
+# Set the command to run tests
+CMD ["/app/run-tests.sh"] 

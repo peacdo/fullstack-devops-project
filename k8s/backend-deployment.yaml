@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lib-backend
+  namespace: library
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: lib-backend
+  template:
+    metadata:
+      labels:
+        app: lib-backend
+    spec:
+      containers:
+      - name: backend
+        image: ${DOCKER_REGISTRY}/lib-backend:${TAG}
+        ports:
+        - containerPort: 3000
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: lib-secrets
+              key: database-url
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: lib-secrets
+              key: jwt-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+  namespace: library
+spec:
+  selector:
+    app: lib-backend
+  ports:
+  - port: 3000
+    targetPort: 3000
+  type: ClusterIP 
