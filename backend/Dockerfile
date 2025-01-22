@@ -1,18 +1,15 @@
 # Build stage
-FROM node:20-alpine as builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
-
-# Add DNS settings to resolve network issues
-RUN echo "nameserver 8.8.8.8" > /etc/resolv.conf && \
-    echo "nameserver 8.8.4.4" >> /etc/resolv.conf
 
 # Copy package files and prisma schema
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Install dependencies with retry
+# Install dependencies with retry and custom DNS
 RUN npm config set registry http://registry.npmjs.org/ && \
+    npm config set dns_nameservers 8.8.8.8 8.8.4.4 && \
     for i in 1 2 3; do \
         npm ci && \
         npm install -g typescript && \
@@ -36,7 +33,9 @@ COPY package*.json ./
 COPY prisma ./prisma/
 
 # Install production dependencies with retry
-RUN for i in 1 2 3; do \
+RUN npm config set registry http://registry.npmjs.org/ && \
+    npm config set dns_nameservers 8.8.8.8 8.8.4.4 && \
+    for i in 1 2 3; do \
         npm ci --production && \
         break || sleep 5; \
     done
