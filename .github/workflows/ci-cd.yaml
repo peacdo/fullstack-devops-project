@@ -59,4 +59,18 @@ jobs:
         run: |
           echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > kubeconfig.yaml
           export KUBECONFIG=kubeconfig.yaml
-          kubectl apply -f k8s/ 
+          
+          # Test connection first
+          kubectl cluster-info
+          
+          # Create namespace if not exists
+          kubectl create namespace library --dry-run=client -o yaml | kubectl apply -f -
+          
+          # Apply with validation disabled and increased timeout
+          kubectl apply -f k8s/ --validate=false --timeout=2m
+          
+          # Wait for resources to be ready
+          kubectl wait --for=condition=ready pods --all -n library --timeout=2m
+          
+          # Verify deployment
+          kubectl get pods,svc,ingress -n library 
