@@ -20,8 +20,7 @@ env:
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest
-    # Job level permissions are already added
+    runs-on: self-hosted
     permissions:
       contents: read
       packages: write
