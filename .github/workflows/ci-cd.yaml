@@ -8,10 +8,11 @@ permissions:
   actions: write     # Needed for workflow
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    push:
+      branches: 
+        - '**'  # Runs on all branches
+    pull_request:
+      branches: [ main ]
 
 env:
   DOCKER_REGISTRY: ghcr.io/peacdo
