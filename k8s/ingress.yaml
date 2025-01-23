@@ -12,15 +12,15 @@ spec:
   - host: staj.com
     http:
       paths:
-      - path: /lib/api(/|$)(.*)
+      - path: /api(/|$)(.*)
         pathType: ImplementationSpecific
         backend:
           service:
             name: backend-service
             port:
               number: 3000
-      - path: /
-        pathType: Prefix
+      - path: /(.*)
+        pathType: ImplementationSpecific
         backend:
           service:
             name: frontend-service
