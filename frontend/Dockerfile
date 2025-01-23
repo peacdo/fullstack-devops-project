@@ -28,11 +28,9 @@ COPY --from=builder /app/dist /usr/share/nginx/html/lib
 # Copy nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Verify the files
-RUN echo "Contents of /usr/share/nginx/html/lib:" && \
-    ls -la /usr/share/nginx/html/lib && \
-    echo "Contents of /usr/share/nginx/html/lib/assets:" && \
-    ls -la /usr/share/nginx/html/lib/assets
+# Set proper permissions
+RUN chown -R nginx:nginx /usr/share/nginx/html && \
+    chmod -R 755 /usr/share/nginx/html
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"] 
