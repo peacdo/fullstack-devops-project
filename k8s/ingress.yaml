@@ -10,6 +10,13 @@ spec:
   - host: staj.com
     http:
       paths:
+      - path: /lib/api/
+        pathType: Prefix
+        backend:
+          service:
+            name: backend-service
+            port:
+              number: 3000
       - path: /
         pathType: Prefix
         backend:
