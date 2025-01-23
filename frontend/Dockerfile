@@ -11,11 +11,11 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Set the base URL for the API
+# Build with production optimizations
+ENV NODE_ENV=production
 ARG VITE_API_URL=/api
 ENV VITE_API_URL=${VITE_API_URL}
 
-# Build with base path
 RUN npm run build
 
 FROM nginx:alpine
@@ -24,7 +24,7 @@ FROM nginx:alpine
 RUN rm -rf /usr/share/nginx/html/*
 
 # Copy the built files to the correct location
-COPY --from=builder /app/dist /usr/share/nginx/html/lib
+COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Copy nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
@@ -32,6 +32,10 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Set proper permissions
 RUN chown -R nginx:nginx /usr/share/nginx/html && \
     chmod -R 755 /usr/share/nginx/html
+
+# Add healthcheck
+HEALTHCHECK --interval=30s --timeout=3s \
+    CMD wget -q --spider http://localhost:80/ || exit 1
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"] 

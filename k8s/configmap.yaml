@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: lib-config
+  namespace: library
+data:
+  VITE_API_URL: "/api"
+  NODE_ENV: "production" 

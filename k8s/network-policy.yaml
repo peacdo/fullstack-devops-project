@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: lib-network-policy
+  namespace: library
+spec:
+  podSelector:
+    matchLabels:
+      app: lib-frontend
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - ipBlock:
+        cidr: 192.168.0.0/16  # Your private network range
+    ports:
+    - protocol: TCP
+      port: 80
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: library
+    ports:
+    - protocol: TCP
+      port: 3000 
