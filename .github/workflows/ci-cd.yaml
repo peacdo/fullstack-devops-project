@@ -32,19 +32,23 @@ jobs:
 
       - name: Create Image Pull Secret
         run: |
+          export KUBECONFIG=kubeconfig.yaml
+          # Delete existing secret if it exists
+          kubectl delete secret ghcr-secret -n library --ignore-not-found
+          
+          # Create new secret
           kubectl create secret docker-registry ghcr-secret \
             --namespace library \
             --docker-server=ghcr.io \
             --docker-username=peacdo \
-            --docker-password=${{ secrets.GHCR_PAT }} \
-            --dry-run=client -o yaml | kubectl apply -f -
+            --docker-password=${{ secrets.GHCR_PAT }}
         
       - name: Deploy to Kubernetes
         run: |
           export KUBECONFIG=kubeconfig.yaml
           
-          # Apply k8s manifests
-          kubectl apply -f k8s/ --validate=false --timeout=5m
+          # Apply k8s manifests except secrets
+          kubectl apply -f k8s/backend-deployment.yaml -f k8s/frontend-deployment.yaml -f k8s/ingress.yaml -f k8s/postgres.yaml -f k8s/secrets.yaml
           
           # Wait for resources
           kubectl wait --for=condition=ready pods --all -n library --timeout=5m
