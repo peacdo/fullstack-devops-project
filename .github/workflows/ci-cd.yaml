@@ -32,19 +32,22 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Build and push Backend
-        uses: docker/build-push-action@v4
-        with:
-          context: ./backend
-          push: true
-          tags: ${{ env.DOCKER_REGISTRY }}/lib-backend:latest
-      
       - name: Build and push Frontend
         uses: docker/build-push-action@v4
         with:
           context: ./frontend
           push: true
           tags: ${{ env.DOCKER_REGISTRY }}/lib-frontend:latest
+          build-args: |
+            NODE_ENV=production
+            VITE_API_URL=/api
+      
+      - name: Build and push Backend
+        uses: docker/build-push-action@v4
+        with:
+          context: ./backend
+          push: true
+          tags: ${{ env.DOCKER_REGISTRY }}/lib-backend:latest
 
       - name: Setup Kubernetes Config
         run: |
@@ -80,8 +83,8 @@ jobs:
           kubectl delete pods -n library -l app=lib-frontend --grace-period=0 --force || true
           kubectl delete pods -n library -l app=lib-backend --grace-period=0 --force || true
           
-          # Apply k8s manifests except secrets
-          kubectl apply -f k8s/backend-deployment.yaml -f k8s/frontend-deployment.yaml -f k8s/ingress.yaml -f k8s/postgres.yaml
+          # Apply k8s manifests
+          kubectl apply -f k8s/
           
           # Wait for resources
           kubectl wait --for=condition=ready pods --all -n library --timeout=5m
