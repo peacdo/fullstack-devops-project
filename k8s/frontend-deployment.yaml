@@ -13,13 +13,21 @@ spec:
       labels:
         app: lib-frontend
     spec:
-      imagePullSecrets:
-      - name: ghcr-secret
       containers:
       - name: frontend
         image: ghcr.io/peacdo/lib-frontend:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 80
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
+      imagePullSecrets:
+      - name: ghcr-secret
 ---
 apiVersion: v1
 kind: Service
