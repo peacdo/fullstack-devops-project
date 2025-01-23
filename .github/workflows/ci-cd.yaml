@@ -74,10 +74,10 @@ jobs:
           kubectl create namespace library --dry-run=client -o yaml | kubectl apply -f -
           
           # Apply with validation disabled and increased timeout
-          kubectl apply -f k8s/ --validate=false --timeout=2m
+          kubectl apply -f k8s/ --validate=false --timeout=5m
           
           # Wait for resources to be ready
-          kubectl wait --for=condition=ready pods --all -n library --timeout=2m
+          kubectl wait --for=condition=ready pods --all -n library --timeout=5m
           
           # Verify deployment
           kubectl get pods,svc,ingress -n library 
