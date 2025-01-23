@@ -48,6 +48,10 @@ jobs:
           context: ./backend
           push: true
           tags: ${{ env.DOCKER_REGISTRY }}/lib-backend:latest
+          build-args: |
+            NODE_ENV=production
+            DATABASE_URL=postgresql://postgres:postgres@postgres-service:5432/library
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
 
       - name: Setup Kubernetes Config
         run: |
