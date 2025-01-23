@@ -29,11 +29,9 @@ COPY --from=builder /app/dist /usr/share/nginx/html/lib
 # Copy nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Set proper permissions and MIME types
+# Set proper permissions
 RUN chown -R nginx:nginx /usr/share/nginx/html && \
-    chmod -R 755 /usr/share/nginx/html && \
-    find /usr/share/nginx/html -type f -name "*.js" -exec sh -c 'chmod 644 "$1" && echo "application/javascript" > /etc/nginx/mime.types.d/$(basename "$1").types' sh {} \; && \
-    find /usr/share/nginx/html -type f -name "*.css" -exec sh -c 'chmod 644 "$1" && echo "text/css" > /etc/nginx/mime.types.d/$(basename "$1").types' sh {} \;
+    chmod -R 755 /usr/share/nginx/html
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"] 
