@@ -5,24 +5,32 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies with retry
-RUN npm config set registry http://registry.npmjs.org/ && \
-    npm config set fetch-retries 5 && \
-    npm config set fetch-retry-mintimeout 20000 && \
-    npm config set fetch-retry-maxtimeout 120000 && \
-    npm ci
+# Install dependencies
+RUN npm ci
 
 # Copy source code
 COPY . .
 
-# Build with base path
+# Set the base URL for the API
 ENV VITE_API_URL=/lib/api
+
+# Build with base path
 RUN npm run build
 
+# Debug: List the contents of the dist directory
+RUN ls -la dist
+
 FROM nginx:alpine
+
+# Remove default nginx static assets
+RUN rm -rf /usr/share/nginx/html/*
+
 # Copy the built files to the correct location
 COPY --from=builder /app/dist /usr/share/nginx/html/lib
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Debug: List the contents after copying
+RUN ls -la /usr/share/nginx/html/lib
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"] 
