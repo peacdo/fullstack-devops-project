@@ -12,13 +12,13 @@ RUN npm ci
 COPY . .
 
 # Set the base URL for the API
-ENV VITE_API_URL=/lib/api
+ENV VITE_API_URL=/api
 
 # Build with base path
 RUN npm run build
 
 # Debug: List the contents of the dist directory
-RUN ls -la dist
+RUN ls -la dist && echo "Contents of dist:" && ls -la dist/*
 
 FROM nginx:alpine
 
@@ -30,7 +30,7 @@ COPY --from=builder /app/dist /usr/share/nginx/html/lib
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Debug: List the contents after copying
-RUN ls -la /usr/share/nginx/html/lib
+RUN ls -la /usr/share/nginx/html/lib && echo "Contents of html/lib:" && ls -la /usr/share/nginx/html/lib/*
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"] 
