@@ -41,6 +41,8 @@ jobs:
           build-args: |
             NODE_ENV=production
             VITE_API_URL=/api
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       
       - name: Build and push Backend
         uses: docker/build-push-action@v4
@@ -52,6 +54,8 @@ jobs:
             NODE_ENV=production
             DATABASE_URL=postgresql://postgres:postgres@postgres-service:5432/library
             JWT_SECRET=${{ secrets.JWT_SECRET }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Setup Kubernetes Config
         run: |
@@ -83,12 +87,31 @@ jobs:
         run: |
           export KUBECONFIG=kubeconfig.yaml
           
+          # Apply ConfigMap first
+          kubectl apply -f k8s/configmap.yaml
+          
+          # Apply NetworkPolicy
+          kubectl apply -f k8s/network-policy.yaml
+          
+          # Apply other resources
+          kubectl apply -f k8s/
+          
           # Delete existing pods to force pull new images
           kubectl delete pods -n library -l app=lib-frontend --grace-period=0 --force || true
           kubectl delete pods -n library -l app=lib-backend --grace-period=0 --force || true
           
-          # Apply k8s manifests
-          kubectl apply -f k8s/
-          
           # Wait for resources
           kubectl wait --for=condition=ready pods --all -n library --timeout=5m
+          
+      - name: Verify Deployment
+        run: |
+          export KUBECONFIG=kubeconfig.yaml
+          
+          # Check pods status
+          kubectl get pods -n library
+          
+          # Check ingress
+          kubectl get ingress -n library
+          
+          # Check services
+          kubectl get svc -n library
